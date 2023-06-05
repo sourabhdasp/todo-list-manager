@@ -2,7 +2,6 @@
 from rich.console import Console
 from rich.text import Text
 from collections import OrderedDict
-import numpy as np
 import json
 
 
