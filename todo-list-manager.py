@@ -7,102 +7,106 @@ import json
 
 # --------------------------------------------- global variables ----------------------------------------------------------------------------  
 
-taskid = 0
-tasklist = []
-taskname = ""
+task_id = 0
+task_list = []
+task_name = ""
 task_dictionary = {}
 console = Console()
 
-# ---------------------------------------------Displaying menu----------------------------------------------------------------------------  
+# ---------------------------------------------Save & Exit----------------------------------------------------------------------------
 
+def save_and_exit():
+    global task_list
+    tasks_json = json.dumps(task_list)
+    # print(tasks_json)
+    try:
+        f = open("tasks.json","w")
+        f.write(tasks_json)
+        print("file saved successfully")
+        f.close()
+    except FileNotFoundError:
+            print("backup file not found")
+    exit()
+
+# ---------------------------------------------Import Tasks----------------------------------------------------------------------------
+
+def import_tasks():
+    global task_list
+    print("importing tasks from backup file")
+    try:
+        f = open("tasks.json","r")
+        task_json = f.read()
+        # print("task_json is :")
+        # print(task_json)
+        f.close()
+        if task_json == "":
+                # print("task_json is empty")
+                task_list = []
+        else:
+                task_list = json.loads(task_json)
+                # print(task_list)
+    except FileNotFoundError:
+            print_error("Backup file not found. Starting with an empty task list")
+            task_list = []
+
+# ---------------------------------------------Display Main Menu----------------------------------------------------------------------------
 
 def display_menu():
-        # print("\n===============================")
-        # print("\tSelect your option")
-        # print("===============================")
-        print_format("SELECT YOUR OPTION")
-        # print(f"[1] ADD [2] LIST [3] EDIT [4] DELETE [5] COMPLETE [6] PENDING [7] PRIORITY [8] EXIT")
-        print_y("1 Add Task \n")
-        print_y("2 display List \n")
-        print_y("3 Sort \n")
-        print_y("4 Edit Task \n")
-        print_y("5 Delete Task \n")
-        print_y("6 Complete Task \n")
-        print_y("7 Pending Task \n")
-        print_y("8 Exit \n")
-        print_y("===============================\n\n")
-# --------------------------------------------- formated printstatment ----------------------------------------------------------------------------  
+        # print_format("WHAT DO YOU WANT TO DO ?")
+        print_g("------------------------------------------------------------------------------------------------------------")
+        # print(f"[n] ADD         [e] EDIT        [d] DELETE      [x] DONE \n[p] PENDING          [i] PRIORITY            [a] ALL         [q] EXIT")
+        print ("{:<22} {:<22} {:<22} {:<22}".format("[a] ADD TASK", "[e] EDIT TASK", "[d] DELETE TASK", "[x] MARK AS DONE"))
+        print ("{:<22} {:<22} {:<22} {:<22}".format("[p] SHOW PENDING", "[i] SHOW PRIORITY", "[t] SHOW ALL", "[q] QUIT"))
+        # print_y("1 Add New Task [n]\n")
+        # print_y("2 Edit Task [e]\n")
+        # print_y("3 Delete Task [d]\n")
+        # print_y("4 Mark as Done [x]\n")
+        # print_y("5 Show Pending Tasks [p]\n")
+        # print_y("6 Show Priority Tasks [i]\n")
+        # print_y("7 Show All Tasks [a]\n")
+        # print_y("8 Exit [q]\n")
+        print_g("------------------------------------------------------------------------------------------------------------")
+        # print_y("===============================\n\n")
 
-def print_y(i):
-    header_text = Text(text=f"{i}", style="#ffa500")
-    console.print(header_text)
-def print_b(i):
-    header_text = Text(text=f"{i}", style="#6a5acd")
-    console.print(header_text)    
-def print_db(i):
-    header_text = Text(text=f"{i}", style="#00719c")
-    console.print(header_text)
-def print_g(i):
-    header_text = Text(text=f"{i}", style="#00f100")
-    console.print(header_text) 
-def print_p(i):
-    header_text = Text(text=f"{i}", style="#ff10be")
-    console.print(header_text)     
-# --------------------------------------------- formated header ----------------------------------------------------------------------------  
-
-def print_format(i):
-
-    header_line_1 = Text(text="\n===========-------------===========", style="#00FFFF")
-    console.print(header_line_1)
-    header_text = Text(text=f"             {i}            ", style="#7FFF00")
-    console.print(header_text)
-    # print(f"          {i}          ")
-    header_line_2 = Text(text="===========-------------===========\n", style="#00FFFF")
-    console.print(header_line_2)
-# --------------------------------------------- formated error----------------------------------------------------------------------------  
-
-def print_error(i):
-    header_line_1 = Text(text="\n===========---ERROR----===========\n", style="#DC143C")
-    console.print(header_line_1)
-    header_text = Text(text=f" ❌❌--- {i} ---❌❌  ", style="#8B0000")
-    console.print(header_text)
-    header_line_1 = Text(text="\n===========---ERROR----===========", style="#DC143C")
-    console.print(header_line_1)
 # --------------------------------------------- display taskList ----------------------------------------------------------------------------
 
-
-def display_list():
-    global taskid, task_dictionary
+def show_all_tasks():
+    global task_list
+    print_format("ALL TASKS")
     print_b("{:<8} {:<60} {:<10} {:<10}".format('ID','Title','Priority','Status'))
     print_g("------------------------------------------------------------------------------------------------------------")
-    for taskitem in tasklist:
-        for taskkey in taskitem:
-            task_dictionary[taskkey] = taskitem[taskkey]
-        for k, v in taskitem.items():
-            # print(f"{k} --------- {v}")
-            # taskname, priority, status = v
-            # print ("{:<8} {:<15} {:<10} {:<10}".format(k,k[v]))
-            print_db ("{:<8} {:<60} {:<10} {:<10}".format(k, v['taskname'], v['priority'], v['status']))
-            taskid = int(k)
+    for task in task_list:
+        # print(task)
+        task_id = task_list.index(task) + 1
+        print_db ("{:<8} {:<60} {:<10} {:<10}".format(task_id, task['title'], task['priority'], task['status']))
+        # for k, v in task.items():
+        #     # print(f"{k} --------- {v}")
+        #     # taskname, priority, status = v
+        #     # print ("{:<8} {:<15} {:<10} {:<10}".format(k,k[v]))
+        #     # print_db ("{:<8} {:<60} {:<10} {:<10}".format(k, v['title'], v['priority'], v['status']))
+        #     print_db ("{:<8} {:<60} {:<10} {:<10}".format(k, task['title'], v['priority'], v['status']))
+            # task_id = int(k)
 
-
-# --------------------------------------------- Add New Task----------------------------------------------------------------------------  
+# --------------------------------------------- Add New Task----------------------------------------------------------------------------
 
 def add_task():
-    global taskid, tasklist,taskname,taskpriority
+    global task_id, task_list,task_name,task_priority
     try:
         print_p("Enter the task title:\n ")
-        taskname = input("")
+        task_name = input("=> ")
         task_status = 'pending'  
         add_priority()
-        taskid +=1
-        list_entry = {taskid:{"taskname":taskname,"priority":taskpriority,"status":task_status}}
+        task_id +=1
+        new_entry = {"uid":task_id, "title":task_name,"priority":task_priority,"status":task_status}
         # print(f"[{taskid}] {taskname}")
-        tasklist.append(list_entry)
+        task_list.append(new_entry)
     except ValueError:
-        print_error("Enter the Integer value between 1-99")
+        print_error("Enter the Integer value between 1-5")
+        task_priority = 0
+        print(f"task priority  {task_priority}")
     except KeyError:
         print_error("Please choose with in the range (Shown above)")
+        # task_priority = 0
         add_priority()
 
 
@@ -111,22 +115,26 @@ def add_task():
 
 
 def add_priority():
-    global taskpriority
+    global task_priority
     try:
         print_p("Enter the task priority: \n")
-        taskpriority = int(input(""))
-        if taskpriority =="":
-            taskpriority="0"
-        elif taskpriority > 99:
-            print_p("Enter value between 1-99")
-        elif taskpriority < 0:
-            print_p("Enter value between 1-99")
+        task_priority = int(input("=> "))
+        if task_priority =="":
+            task_priority="0"
+        elif task_priority > 5:
+            print_error("Enter value between 1-5")
+            task_priority = 0
+            add_priority()
+        elif task_priority < 0:
+            print_error("Enter value between 1-5")
+            task_priority = 0
+            add_priority()
         # list_entry = {taskid:{"taskname":taskname,"priority":taskpriority,"status":taskstatus}}
         # print(f"[{taskid}] {taskname}")
         # tasklist.append(list_entry)
         # print(tasklist)
     except ValueError:
-        print_error("Enter a value between 1-100 or Enter 0 to skip ")
+        print_error("Enter a value between 1-5 or Enter 0 to skip ")
     except KeyError:
         print_error("Please choose with in the range (Shown above)")
         add_priority()
@@ -142,70 +150,45 @@ def add_priority():
 #             print(f"[{taskkey}] {taskitem[taskkey]['taskname']} [{taskitem[taskkey]['priority']}] {taskitem[taskkey]['status']}")
 #             taskid = int(taskkey)
 
+# ---------------------------------------------Editing TaskList----------------------------------------------------------------------------
 
-# ---------------------------------------------Save & exit----------------------------------------------------------------------------  
-
-
-
-def save_and_exit():
-    jsonoutput = json.dumps(tasklist)
-    f = open("tasklist.txt","w")
-    f.write(jsonoutput)
-    f.close()
-    exit()
-
-
-# ---------------------------------------------Importing TaskList----------------------------------------------------------------------------  
-
-def read_tasklist_from_file():
-    global tasklist
-    f = open("tasklist.txt","r")
-    jsoncontent = f.read()
-    f.close()
-    if jsoncontent == "":
-        tasklist=[]
-    else:    
-        tasklist = json.loads(jsoncontent)
-
-# ---------------------------------------------Editing TaskList----------------------------------------------------------------------------  
+def show_task_info(task_id):
+    global user_choice
+    try:
+        user_choice = task_list[task_id]
+        print_g(f"\n---> {user_choice['title']} [{user_choice['priority']}] [{user_choice['status']}] ")
+    except KeyError:
+        print_error("Please choose with in the range (Shown above)")
 
 def edit_task():
+    global user_choice
     try:
-        print_format("TASKLIST")
-        print_b ("{:<8} {:<60} {:<10} {:<10}".format('ID','Title','Priority','Status'))
-        print_g("------------------------------------------------------------------------------------------------------------")
-        for taskitem in tasklist:
-            for k, v in taskitem.items():
-                # index = index(k)
-                # index = index + 1
-                print_db("{:<8} {:<60} {:<10} {:<10}".format(k, v['taskname'], v['priority'], v['status']))
-        # for taskitem in tasklist:
-        #         for taskkey in taskitem:
-        #             index = tasklist.index(taskitem)
-        #             index = index + 1
-        #             print(f"[{index}] {taskitem[taskkey]['taskname']} [{taskitem[taskkey]['priority']}]")
+        # print_format("TASKLIST")
+        show_all_tasks()
         print_p("\nenter the task id to be edited:\n")
-        task_id=input(" ")
+        task_id = int(input("=> ")) - 1
+        show_task_info(task_id)
         # task_id=int(input("\nenter the task id to be edited: "))
         # print(task_dictionary)
-        print_g(f"{task_dictionary[task_id]} {task_dictionary[task_id]['taskname']} {task_dictionary[task_id]['priority']}")
+        # print_g(f"{task_dictionary[task_id]} {task_dictionary[task_id]['taskname']} {task_dictionary[task_id]['priority']}")
         # chosen_task_dict = tasklist[task_id-1]
         # chosen_task=chosen_task_dict[str(task_id)]
         # print(f"\n---> {chosen_task['taskname']} [{chosen_task['priority']}] ")
-        print_p("\nwhat do you want to edit?: ")
-        print_g("1 priority")
-        print_g("2 taskname")
-        task_property = input("what do you want to edit?")
+        print_p("\nwhat do you want to edit ? : ")
+        print_g("[1] Priority")
+        print_g("[2] Title")
+        task_property = input("=> ")
         match task_property:
             case "1":
-                print_g(f"current priority is : {task_dictionary[task_id]['priority']}")
+                print_g(f"current priority is : {user_choice['priority']}")
                 print_p("enter new value for priority:\n")
-                task_dictionary[task_id]['priority']=input(" ")
+                user_choice['priority']=int(input("=> "))
                 
             case "2":
-                print_g(f"current taskname is : {task_dictionary[task_id]['taskname']}")
-                print_p("enter new taskname:\n")
-                task_dictionary[task_id]['taskname'] = input(" ")
+                print_g(f"current title is : {user_choice['title']}")
+                print_p("enter new title :\n")
+                user_choice['title'] = input("=> ")
+                print("")
             case "":
                 print_error("Invalid input .please select one of these options")     
             case _:
@@ -225,18 +208,19 @@ def sort_by_priority():
     #     task_dictionary.update(i)
     # print(task_dictionary)
 
-    for taskitem in tasklist:
-        for taskkey in taskitem:
-            task_dictionary[taskkey] = taskitem[taskkey]
-            unsorted_dictionary[taskkey]=int(taskitem[taskkey]['priority'])
-    arranged=sorted(unsorted_dictionary.items(),key=lambda x: x[1],reverse=True)
+    for task in task_list:
+            new_key = task_list.index(task)
+            unsorted_dictionary[new_key] = task['priority']
+    print(unsorted_dictionary)
+    arranged = sorted(unsorted_dictionary.items(),key=lambda x: x[1],reverse=True)
     print_format("TASKLIST")
     print_b("{:<8} {:<60} {:<10} {:<10}".format('ID','Title','Priority','Status'))
     print_g("------------------------------------------------------------------------------------------------------------")
     for i in arranged:
         new_key = i[0]
         # print(task_dictionary[new_key])
-        print_db ("{:<8} {:<60} {:<10} {:<10}".format(new_key,task_dictionary[new_key]['taskname'], task_dictionary[new_key]['priority'],task_dictionary[new_key]['status']))
+        if task_list[new_key]['status'] == "pending":
+                print_db ("{:<8} {:<60} {:<10} {:<10}".format(new_key,task_list[new_key]['title'], task_list[new_key]['priority'],task_list[new_key]['status']))
     # for taskitem in tasklist:
     #     for k, v in taskitem.items():
     #             # index = index(k)
@@ -247,22 +231,18 @@ def sort_by_priority():
 
 def delete_task():
     try:
-        print_format("TASKLIST")
-        for taskitem in tasklist:
-                for taskkey in taskitem:
-                    index = tasklist.index(taskitem)
-                    index = index + 1
-                    print(f"[{index}] {taskitem[taskkey]['taskname']} [{taskitem[taskkey]['priority']}]")  
+        print_format("tasklist")
+        show_all_tasks()
         print_p("\nenter the task id to be deleted: \n")
-        task_id=int(input(""))
-        chosen_task_dict = tasklist[task_id-1]
-        chosen_task=chosen_task_dict[str(task_id)]
-        print_g(f"\n---> {chosen_task['taskname']} [{chosen_task['priority']}] ")
-        print_p("\nAre you sure want to delete?")
-        print_y("\n[y] to delete or [n] to cancel ")
-        delete_item = input("\nconfirm ? : ")
+        task_id = int(input("=> ")) - 1
+        user_choice = task_list[task_id]
+        print_g(f"\n---> {user_choice['title']} [{user_choice['priority']} [{user_choice['status']}] ")
+        print_p("\nare you sure want to delete?")
+        print_y("\n[y] to delete or [n] to cancel \n")
+        delete_item = input("=> ")
+        print("")
         if delete_item == "y":
-            del tasklist[task_id-1]
+            del task_list[task_id]
 
     except IndexError:
         print_error("Please choose with in the range (Shown above)")
@@ -274,18 +254,17 @@ def delete_task():
 def complete_task():
     try:
         print_format("TASKLIST")
-        print_b ("{:<8} {:<60} {:<10} {:<10}".format('ID','Title','Priority','Status'))
-        print_g("------------------------------------------------------------------------------------------------------------")
-        for taskitem in tasklist:
-            for k, v in taskitem.items():
-                print_db("{:<8} {:<60} {:<10} {:<10}".format(k, v['taskname'], v['priority'], v['status']))
-        print_p("\nenter the task id to be completed: \n")            
-        task_id=int(input(""))
-        chosen_task_dict = tasklist[task_id-1]
-        chosen_task=chosen_task_dict[str(task_id)]
-        print(f"\n---> {chosen_task['taskname']} [{chosen_task['priority']}] {chosen_task['status']}")                                                                                                                                                                                                                                                                                                                                                 
-        chosen_task['status']="completed"
-        print(f"\n---> {chosen_task['taskname']} [{chosen_task['priority']}] {chosen_task['status']}")                                                                                                                                                                                                                                                                                                                                                 
+        # print_b ("{:<8} {:<60} {:<10} {:<10}".format('ID','Title','Priority','Status'))
+        # print_g("------------------------------------------------------------------------------------------------------------")
+        show_pending_tasks()
+        print_p("\nenter the task id to be completed: \n")
+        task_id=int(input("=> "))
+        user_choice = task_list[task_id-1]
+        # chosen_task=chosen_task_dict[str(task_id)]
+        print(f"\n---> {user_choice['title']} [{user_choice['priority']}] {user_choice['status']}")
+        user_choice['status']="done"
+        print(f"\n---> {user_choice['title']} [{user_choice['priority']}] {user_choice['status']}")
+        # print(f"\n---> {chosen_task['taskname']} [{chosen_task['priority']}] {chosen_task['status']}")
 
     except IndexError:
         print_error("Please choose with in the range (Shown above)")
@@ -295,31 +274,80 @@ def complete_task():
 # ---------------------------------------------pending task----------------------------------------------------------------------------  
 
 
-def pending_task():
-    global taskid
+def show_pending_tasks():
+    global task_list
     pending = 0
     completed = 0
+    print_format("PENDING TASKS")
     print_b("{:<8} {:<60} {:<10} {:<10}".format('ID','Title','Priority','Status'))
     print_g("------------------------------------------------------------------------------------------------------------")
-    for taskitem in tasklist:
-        for k, v in taskitem.items():
-            if v['status'] == "pending":
-                print_y("{:<8} {:<60} {:<10} {:<10}".format(k, v['taskname'], v['priority'], v['status']))
-                pending = pending + 1
-            else:
-                completed = completed + 1   
+    for task in task_list:
+        if task['status'] == "pending":
+           task_id = task_list.index(task) + 1
+           print_y("{:<8} {:<60} {:<10} {:<10}".format(task_id, task['title'], task['priority'], task['status']))
+           pending = pending + 1
+        else:
+           completed = completed + 1
     if pending == 0:
-        print_g("\n                 <--------- Every thing is completed ---------->")
+        print_g("\n                 <--------- Looks like you have no more pending tasks !!! ---------->")
+
+    # for task in task_list:
+    #     for k, v in taskitem.items():
+    #         if task['status'] == "pending":
+    #             print_y("{:<8} {:<60} {:<10} {:<10}".format(k, v['taskname'], v['priority'], v['status']))
+    #             pending = pending + 1
+    #         else:
+    #             completed = completed + 1
+    # if pending == 0:
+    #     print_g("\n                 <--------- Every thing is completed ---------->")
 
 
+# --------------------------------------------- formated printstatment ----------------------------------------------------------------------------
 
-# ---------------------------------------------Main menu----------------------------------------------------------------------------  
-# [1] add []
+def print_y(i):
+    header_text = Text(text=f"{i}", style="#ffa500")
+    console.print(header_text)
+def print_b(i):
+    header_text = Text(text=f"{i}", style="#6a5acd")
+    console.print(header_text)
+def print_db(i):
+    header_text = Text(text=f"{i}", style="#00719c")
+    console.print(header_text)
+def print_g(i):
+    header_text = Text(text=f"{i}", style="#00f100")
+    console.print(header_text)
+def print_p(i):
+    header_text = Text(text=f"{i}", style="#ff10be")
+    console.print(header_text)
+# --------------------------------------------- formated header ----------------------------------------------------------------------------
+
+def print_format(i):
+
+    header_line_1 = Text(text="\n------------------------------------------------------------------------------------------------------------", style="#00FFFF")
+    # header_line_1 = Text(text="\n===========-------------===========", style="#00FFFF")
+    console.print(header_line_1)
+    header_text = Text(text=f" {i} ", style="#7FFF00")
+    console.print(header_text)
+    # print(f"          {i}          ")
+    header_line_2 = Text(text="------------------------------------------------------------------------------------------------------------", style="#00FFFF")
+    console.print(header_line_2)
+
+# --------------------------------------------- formated error----------------------------------------------------------------------------
+
+def print_error(i):
+    header_line_1 = Text(text="\n===========---ERROR----===========\n", style="#DC143C")
+    console.print(header_line_1)
+    header_text = Text(text=f" ❌❌--- {i} ---❌❌  ", style="#8B0000")
+    console.print(header_text)
+    header_line_1 = Text(text="\n===========---ERROR----===========", style="#DC143C")
+    console.print(header_line_1)
+
+# ---------------------------------------------Main Application Logic----------------------------------------------------------------------------
 
 def task_manager():
-    read_tasklist_from_file()
-    print_format("TASKS")
-    display_list()
+    import_tasks()
+    # print_format("TASKS")
+    show_pending_tasks()
     # mytext = Text(text="Todo List", style="#00FFFF")
     # console.print(mytext)
     # print_format ("sourabh")
@@ -328,28 +356,33 @@ def task_manager():
     # print_format ("mango")
     while(True):
         display_menu()
-        user_choice=input("")
+        user_choice=input("=> ")
         match user_choice:
-            case "1":
+            case "1" | "a":
                 add_task()
-            case "2":
-                display_list()
-            case "4":
+                # print_format("TASKS")
+                show_pending_tasks()
+            case "2" | "e":
                 edit_task()
-            case "5":
+                show_all_tasks()
+            case "3" | "d":
                 delete_task()
-            case "6":
-                complete_task() 
-            case "7":
-                pending_task()
-            case "3":
-                sort_by_priority()                
-            case "8":
-                save_and_exit() 
+                show_all_tasks()
+            case "4" | "x":
+                complete_task()
+                show_pending_tasks()
+            case "5" | "p":
+                show_pending_tasks()
+            case "6" | "i":
+                sort_by_priority()
+            case "7" | "t":
+                show_all_tasks()
+            case "8" | "q":
+                save_and_exit()
             case "":
-                print_error("Invalid input .please select one of these options")     
+                print_error("Input is empty. Please select one from the list below")
             case _:
-                print_error("invalid")
+                print_error("That is an invalid option. Please select one from the list below")
 
 if __name__=="__main__":
     task_manager()
