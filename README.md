@@ -1,2 +1,2 @@
 # todo-list-manger
-This tool is not as usual .The tool has the property of arranging the list by priority
+This is the Python based project where the todo-list can be maintained,add,delete,modify,arrange accordingly.
